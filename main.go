@@ -1,5 +1,11 @@
 package main
 
+/*
+Running on Gorilla Mux Framework ATM
+
+Will try on with Gin, Echo, Iris in the near future
+*/
+
 
 /*
 go get go.mongodb.org/mongo-driver/mongo
@@ -10,7 +16,7 @@ import (
     "log"
 //    "time"
     "net/http"
-    "context"
+//    "context"
     "github.com/gorilla/mux"
 
     //  mongo driver
@@ -18,11 +24,11 @@ import (
 //    "github.com/mongodb/mongo-go-driver/mongo"
 //    "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
+//    "go.mongodb.org/mongo-driver/mongo/options"
 
     //  import models
 //    "github.com/doxxitxxyoung/go-rest-tutorial/models"
-
+    "github.com/doxxitxxyoung/go-rest-tutorial/controllers"
 )
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -34,11 +40,12 @@ func handleRequests() {
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-var client *mongo.Client
+//var client *mongo.Client
+var Client *mongo.Client
 
 //const CollectionName = "Samples"
 
-
+/*
 func main() {
 
 
@@ -56,12 +63,10 @@ func main() {
 //    client, _ = mongo.Connect(ctx,"mongodb://localhost:27017")
 
     //  configure connection url first
-    /*
-    client, err := mongo.NewClient(options.Client().ApplyURI(AtlasURL))
-    if err != nil {
-        log.Fatal(err)
-    }
-    */
+//    client, err := mongo.NewClient(options.Client().ApplyURI(AtlasURL))
+//    if err != nil {
+//        log.Fatal(err)
+//    }
 
 
 //    ctx, _ := context.WithTimeout(context.Background(), 10*time.Second) //  skip errors ATM
@@ -94,3 +99,20 @@ func main() {
 
     //handleRequests()
 }
+*/
+func home(w http.ResponseWriter, r *http.Request) {
+//    fmt.Println("GLIT Atlas DB connection")
+    fmt.Fprintf(w, "GLIT Atlas MongoDB Server")
+}
+
+func main() {
+    r := mux.NewRouter()
+
+    r.HandleFunc("/", home).Methods("Get")
+    r.HandleFunc("/api/drugs", controllers.GetDrugs).Methods("GET")
+    r.HandleFunc("/api/drug-by-id/{id}", controllers.GetDrugById).Methods("GET")
+
+    r.HandleFunc("/api/samples", controllers.GetSamples).Methods("GET")
+    log.Fatal(http.ListenAndServe(":8080", r))
+}
+
