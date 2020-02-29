@@ -41,7 +41,7 @@ type ErrorResponse struct {
 }
 
 func GetError(err error, w http.ResponseWriter) {
-    log.Fatal(err.Error())
+//    log.Fatal(err.Error())    //  removed, since I did not wanted to stop the whole server.
     var response = ErrorResponse{
         StatusCode: http.StatusInternalServerError,
         ErrorMessage: err.Error(),

@@ -111,8 +111,11 @@ func main() {
     r.HandleFunc("/", home).Methods("Get")
     r.HandleFunc("/api/drugs", controllers.GetDrugs).Methods("GET")
     r.HandleFunc("/api/drug-by-id/{id}", controllers.GetDrugById).Methods("GET")
+    r.HandleFunc("/api/drug-by-drugname/{drugname}", controllers.GetDrugByDrugname).Methods("GET")
 
     r.HandleFunc("/api/samples", controllers.GetSamples).Methods("GET")
+    r.HandleFunc("/api/sample-by-id/{id}", controllers.GetSampleById).Methods("GET")
+    r.HandleFunc("/api/sample-by-drugname/{drugname}", controllers.GetSamplesByDrugname).Methods("GET")
     log.Fatal(http.ListenAndServe(":8080", r))
 }
 

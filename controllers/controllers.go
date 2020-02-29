@@ -1,6 +1,7 @@
 package controllers
 
 import (
+    "fmt"
     "context"
     "encoding/json"
     "log"
@@ -12,6 +13,8 @@ import (
 
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+
+//    "labix.org/v2/mgo/bson"
 
 )
 
@@ -28,7 +31,6 @@ func GetDrugs(w http.ResponseWriter, r *http.Request) {
 
     //  bson.M{} : empty filter.-> get all data
     cur, err := drugCollection.Find(context.TODO(), bson.M{})
-    fmt
 
     if err != nil {
         repository.GetError(err, w)
@@ -74,6 +76,34 @@ func GetDrugById(w http.ResponseWriter, r *http.Request) {
     //  add scenario when there is no result matching the requesr param.
     //  Simply returning null, not stopping the whole server.
 
+    fmt.Println(err)
+
+    if err != nil {
+        repository.GetError(err, w)
+        return
+    }
+
+    json.NewEncoder(w).Encode(drug)
+}
+
+func GetDrugByDrugname(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+
+    var drug models.Drug
+    var params = mux.Vars(r)
+    drugname, _ := params["drugname"]
+
+    drugCollection := repository.ConnectDB().Collection("drugs")
+
+
+    filter := bson.M{"drugname": drugname}
+    err := drugCollection.FindOne(context.TODO(), filter).Decode(&drug)
+
+    //  add scenario when there is no result matching the requesr param.
+    //  Simply returning null, not stopping the whole server.
+
+    fmt.Println(err)
+
     if err != nil {
         repository.GetError(err, w)
         return
@@ -112,6 +142,65 @@ func GetSamples(w http.ResponseWriter, r *http.Request) {
 
     if err := cur.Err(); err != nil {
         log.Fatal(err)
+    }
+
+    json.NewEncoder(w).Encode(samples)
+}
+
+func GetSampleById(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+
+    var sample models.Sample
+    var params = mux.Vars(r)
+    id, _ := primitive.ObjectIDFromHex(params["id"])
+
+    sampleCollection := repository.ConnectDB().Collection("samples")
+
+
+    filter := bson.M{"_id": id}
+    err := sampleCollection.FindOne(context.TODO(), filter).Decode(&sample)
+
+    fmt.Println(err)
+
+    if err != nil {
+        repository.GetError(err, w)
+        return
+    }
+
+    json.NewEncoder(w).Encode(sample)
+}
+
+func GetSamplesByDrugname(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+
+    var samples []models.Sample
+    var params = mux.Vars(r)
+    drugname, _ := params["drugname"]
+
+    sampleCollection := repository.ConnectDB().Collection("samples")
+
+    filter := bson.M{"drugname": drugname}
+    cur, err := sampleCollection.Find(context.TODO(), filter)
+
+    fmt.Println(err)
+
+    if err != nil {
+        repository.GetError(err, w)
+        return
+    }
+
+    defer cur.Close(context.TODO())
+
+    for cur.Next(context.TODO()) {
+        var sample models.Sample
+
+        err := cur.Decode(&sample)
+
+        if err != nil {
+            fmt.Println(err)
+        }
+
+        samples = append(samples, sample)
     }
 
     json.NewEncoder(w).Encode(samples)
